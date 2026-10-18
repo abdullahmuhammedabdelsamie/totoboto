@@ -1,0 +1,660 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Autobus | Party Game</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --bg:#090d19;
+  --panel:#11182a;
+  --panel2:#182238;
+  --line:#293650;
+  --text:#f4f5ff;
+  --muted:#98a5c0;
+  --purple:#9575ff;
+  --cyan:#53d8e8;
+  --green:#4be0a1;
+  --red:#ff6b81;
+  --gold:#ffd36e;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  color:var(--text);
+  background:
+    radial-gradient(ellipse at 10% 0%,#30205b55,transparent 45%),
+    radial-gradient(ellipse at 95% 30%,#10485833,transparent 40%),
+    var(--bg);
+  font-family:'Cairo',sans-serif;
+  min-height:100vh;
+}
+button,input,select{font:inherit}
+button{
+  border:1px solid transparent;
+  border-radius:13px;
+  padding:12px 16px;
+  color:white;
+  background:linear-gradient(120deg,#7959ef,#a078ff);
+  font-weight:800;
+  cursor:pointer;
+  transition:.18s;
+}
+button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.1)}
+button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+button.secondary{background:#1a263e;border-color:var(--line)}
+button.ghost{background:transparent;border-color:var(--line)}
+button.danger{background:#552236;border-color:#7e304b}
+input,select{
+  width:100%;
+  background:#0b1221;
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px 13px;
+  outline:none;
+}
+input:focus,select:focus{border-color:var(--purple)}
+label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
+.hidden{display:none!important}
+.app{max-width:1100px;margin:auto;padding:0 18px 35px}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:15px;padding:20px 0;border-bottom:1px solid #ffffff12;
+}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{
+  width:44px;height:44px;border-radius:14px;
+  display:grid;place-items:center;font-size:23px;
+  background:linear-gradient(140deg,#7654ed,#46c9d7);
+  box-shadow:0 8px 30px #7654ed33;
+}
+.brand h1{font-size:18px;margin:0;font-weight:900}
+.brand small{display:block;color:var(--muted);font-size:11px}
+.status{
+  display:flex;align-items:center;gap:8px;
+  background:#141d30;border:1px solid var(--line);
+  padding:8px 12px;border-radius:30px;font-size:12px;color:var(--muted)
+}
+.dot{width:8px;height:8px;border-radius:50%;background:#68738c}
+.dot.on{background:var(--green);box-shadow:0 0 12px #4be0a188}
+.hero{padding:35px 0 25px}
+.eyebrow{color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:1px}
+.hero h2{font-size:clamp(29px,6vw,47px);line-height:1.35;margin:8px 0}
+.gradient-text{
+  background:linear-gradient(90deg,#c3b2ff,#6fe5ef);
+  color:transparent;background-clip:text
+}
+.hero p{color:var(--muted);max-width:580px;line-height:1.9;margin:0}
+.layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);gap:17px}
+.panel{
+  border:1px solid var(--line);border-radius:20px;
+  background:linear-gradient(145deg,#151e32ee,#0f1728ee);
+  padding:21px;box-shadow:0 14px 40px #0002;
+  margin-bottom:17px;min-width:0;
+}
+.panel-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}
+.panel-title h3{font-size:17px;margin:0}
+.tag{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 10px;border-radius:9px;
+  background:#2a2350;color:#c9baff;font-size:11px;font-weight:800
+}
+.field{margin-bottom:14px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.actions>*{flex:1}
+.note{color:var(--muted);font-size:12px;line-height:1.8}
+.message{
+  padding:12px 15px;border-radius:12px;margin:15px 0;
+  background:#141d30;border:1px solid var(--line);
+  color:var(--muted);font-size:13px;line-height:1.8
+}
+.message.error{color:#ffabb8;border-color:#733348}
+.message.good{color:#9ff0c8;border-color:#246b50}
+.room-code{
+  font-size:26px;font-weight:900;letter-spacing:5px;
+  color:var(--cyan);direction:ltr;display:inline-block
+}
+.player-list{display:grid;gap:9px}
+.player{
+  display:flex;align-items:center;gap:11px;
+  padding:11px;border:1px solid var(--line);
+  background:#0e1728;border-radius:13px;min-width:0
+}
+.avatar{
+  width:39px;height:39px;border-radius:12px;flex-shrink:0;
+  display:grid;place-items:center;font-weight:900;font-size:18px;
+  background:linear-gradient(135deg,#4d3c91,#20536b)
+}
+.player-info{min-width:0;flex:1}
+.player-info strong{display:block;overflow-wrap:anywhere;font-size:13px}
+.player-info small{color:var(--muted);font-size:11px}
+.player-points{font-size:12px;color:var(--gold);font-weight:800}
+.game-head{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:15px;flex-wrap:wrap
+}
+.phase-label{font-size:12px;color:var(--cyan);font-weight:800}
+.timer{
+  width:76px;height:76px;border-radius:50%;
+  display:grid;place-items:center;position:relative;
+  background:conic-gradient(var(--cyan) var(--progress,100%),#28334a 0);
+}
+.timer:before{content:"";position:absolute;inset:5px;background:#111a2c;border-radius:50%}
+.timer span{position:relative;font-weight:900;font-size:19px;direction:ltr}
+.letter-box{
+  text-align:center;padding:22px 10px;margin:18px 0;
+  border:1px solid #55458b;border-radius:18px;
+  background:radial-gradient(ellipse at center,#38296077,transparent 75%),#13182a
+}
+.letter-box small{color:var(--muted);font-size:12px}
+.letter{font-size:68px;line-height:1.35;font-weight:900;color:#c9baff}
+.answers-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.answer-field{min-width:0}
+.answer-field input{margin-top:0}
+.section-label{font-size:13px;color:var(--muted);margin:16px 0 10px}
+.vote-card{
+  border:1px solid var(--line);background:#0d1526;
+  border-radius:13px;padding:13px;margin-bottom:10px
+}
+.vote-card h4{margin:0 0 9px;font-size:13px;color:var(--cyan)}
+.vote-option{
+  display:flex;align-items:center;gap:10px;
+  border:1px solid #2c3a55;border-radius:10px;
+  padding:10px;margin-top:7px;cursor:pointer;
+}
+.vote-option:has(input:checked){border-color:var(--purple);background:#30265a55}
+.vote-option input{width:auto;accent-color:var(--purple)}
+.vote-option span{overflow-wrap:anywhere;font-size:13px}
+.result-row{padding:13px 0;border-bottom:1px solid var(--line)}
+.result-row:last-child{border-bottom:0}
+.result-top{display:flex;justify-content:space-between;gap:10px}
+.bar{height:7px;background:#273249;border-radius:9px;overflow:hidden;margin-top:8px}
+.bar div{height:100%;background:linear-gradient(90deg,var(--purple),var(--cyan));border-radius:9px}
+.winner{
+  padding:18px;text-align:center;border-radius:15px;
+  background:linear-gradient(120deg,#46371966,#27214d66);
+  border:1px solid #6b572f;margin-bottom:14px
+}
+.winner .trophy{font-size:32px}
+footer{text-align:center;color:#697692;font-size:11px;padding:24px}
+@media(max-width:760px){
+  .layout{grid-template-columns:1fr}
+  .hero{padding-top:26px}
+  .panel{padding:16px}
+}
+@media(max-width:430px){
+  .app{padding:0 11px 25px}
+  .answers-grid{grid-template-columns:1fr}
+  .brand h1{font-size:15px}
+  .topbar{gap:8px}
+  .status{padding:7px 9px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">✦</div>
+      <div><h1>AUTOBUS <span class="gradient-text">COMPLETE</span></h1>
+      <small>THE ULTIMATE PARTY GAME</small></div>
+    </div>
+    <div class="status"><span id="dot" class="dot"></span><span id="connection">غير متصل</span></div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">THINK FAST. VOTE SMART.</div>
+    <h2>الحرف عندك،<br><span class="gradient-text">والفوز بتصويت أصحابك.</span></h2>
+    <p>اكتب أسرع إجابة، قيّم إجابات اللاعبين، واجمع النقاط في منافسة جماعية مباشرة.</p>
+  </section>
+
+  <div id="message" class="message">أدخل اسمك لإنشاء غرفة أو الانضمام إلى أصدقائك.</div>
+
+  <div class="layout">
+    <div>
+      <section id="setup" class="panel">
+        <div class="panel-title"><h3>🚀 ابدأ اللعب</h3><span class="tag">MULTIPLAYER</span></div>
+        <div class="field"><label for="name">اسم اللاعب</label><input id="name" maxlength="24" placeholder="اسمك داخل اللعبة"></div>
+        <div class="actions"><button id="create">إنشاء غرفة</button><button id="showJoin" class="secondary">انضمام</button></div>
+        <div id="joinForm" class="hidden" style="margin-top:15px">
+          <div class="field"><label for="roomInput">كود الغرفة</label><input id="roomInput" maxlength="6" placeholder="ABC123" style="direction:ltr;text-transform:uppercase"></div>
+          <button id="join" style="width:100%">دخول الغرفة ←</button>
+        </div>
+      </section>
+
+      <section id="room" class="panel hidden">
+        <div class="panel-title"><h3>🏠 غرفة المباراة</h3><span class="tag">LOBBY</span></div>
+        <label>كود الدعوة</label>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px">
+          <span id="roomCode" class="room-code"></span><button id="copy" class="secondary">نسخ</button>
+        </div>
+        <div class="panel-title"><h3>اللاعبون</h3><span id="playerCount" class="tag">0 لاعبين</span></div>
+        <div id="players" class="player-list"></div>
+        <div id="hostSettings" class="hidden" style="margin-top:20px">
+          <div class="field"><label for="duration">مدة الجولة</label><select id="duration"><option value="30">30 ثانية — سريع</option><option value="60" selected>60 ثانية — عادي</option><option value="90">90 ثانية — طويل</option><option value="120">120 ثانية — تحدي</option></select></div>
+          <div class="field"><label for="roundCount">عدد الجولات</label><select id="roundCount"><option value="3">3 جولات</option><option value="5" selected>5 جولات</option><option value="10">10 جولات</option></select></div>
+          <button id="start" style="width:100%" disabled>ابدأ المباراة</button>
+          <p class="note" id="startHint">يلزم وجود لاعبين على الأقل.</p>
+        </div>
+        <p id="guestHint" class="note">بانتظار المضيف لبدء المباراة...</p>
+        <button id="leave" class="danger" style="width:100%;margin-top:17px">مغادرة الغرفة</button>
+      </section>
+
+      <section id="game" class="panel hidden">
+        <div class="game-head">
+          <div><div id="phaseLabel" class="phase-label">ROUND 01</div><h3 id="phaseTitle">اكتب إجاباتك</h3><div class="note" id="phaseDescription">استخدم الحرف الظاهر في جميع الإجابات.</div></div>
+          <div class="timer" id="timer"><span id="timeLeft">60</span></div>
+        </div>
+        <div class="letter-box"><small>الحرف المطلوب</small><div id="letter" class="letter">م</div></div>
+
+        <div id="answerArea">
+          <div id="answerFields" class="answers-grid"></div>
+          <button id="submit" style="width:100%;margin-top:17px">تسليم الإجابات ✓</button>
+          <p id="submittedHint" class="note hidden">تم التسليم. انتظر بقية اللاعبين.</p>
+        </div>
+
+        <div id="voteArea" class="hidden">
+          <p class="note">اختر أفضل إجابة لكل فئة. لا يمكنك التصويت لإجابتك، ولا يمكنك تغيير صوتك بعد إرساله.</p>
+          <div id="voteFields"></div>
+          <button id="sendVotes" style="width:100%;margin-top:15px">تأكيد التصويت</button>
+          <p id="votesHint" class="note hidden">تم تسجيل تصويتك.</p>
+        </div>
+
+        <div id="waitingArea" class="hidden message">انتهت هذه المرحلة. انتظر المضيف.</div>
+        <div id="roundResults" class="hidden">
+          <div class="winner"><div class="trophy">🏆</div><strong id="roundWinner">نتائج الجولة</strong><p class="note">تم احتساب النقاط وفق أصوات اللاعبين.</p></div>
+          <div id="roundScoreList"></div>
+          <button id="next" style="width:100%;margin-top:16px">الجولة التالية ←</button>
+        </div>
+      </section>
+    </div>
+
+    <aside>
+      <section class="panel">
+        <div class="panel-title"><h3>📊 ترتيب المباراة</h3><span class="tag">LIVE</span></div>
+        <div id="leaderboard" class="player-list"><p class="note">ستظهر النقاط هنا بعد بدء المباراة.</p></div>
+      </section>
+      <section class="panel">
+        <div class="panel-title"><h3>🎯 طريقة احتساب النقاط</h3></div>
+        <div class="result-row"><div class="result-top"><span>أصوات اللاعبين</span><strong>+1</strong></div><p class="note">كل صوت تحصل عليه إجابتك يضيف نقطة.</p></div>
+        <div class="result-row"><div class="result-top"><span>إجابة بلا أصوات</span><strong>0</strong></div><p class="note">لا توجد نقاط تلقائية لمجرد كتابة الإجابة.</p></div>
+        <div class="result-row"><div class="result-top"><span>التصويت للنفس</span><strong>ممنوع</strong></div><p class="note">لا يظهر خيار إجابتك ضمن اختيارات التصويت.</p></div>
+      </section>
+    </aside>
+  </div>
+  <footer>Autobus Complete · Made for friends who think fast.</footer>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+/* ضع بيانات مشروعك هنا */
+const SUPABASE_URL = "https://dpufcqqcnvpeovmeaxlk.supabase.co";
+const SUPABASE_KEY = "sb_publishable_iNEEKslPfROyKKeWMunu0Q_C5FBfAVn";
+
+const $ = id => document.getElementById(id);
+const CATS = [
+  ["boy","اسم ولد"],["girl","اسم بنت"],["animal","حيوان"],
+  ["plant","نبات"],["object","جماد"],["country","بلاد"]
+];
+const LETTERS = ["أ","ب","ت","ث","ج","ح","خ","د","ذ","ر","ز","س","ش","ص","ض","ط","ظ","ع","غ","ف","ق","ك","ل","م","ن","ه","و","ي"];
+const AVATARS = ["✦","◆","●","▲","✿","✧","⬟","★"];
+
+let db = null, channel = null, timerInterval = null;
+let roomCode = "", playerId = localStorage.getItem("autobus_player_id");
+if (!playerId) {
+  playerId = crypto.randomUUID();
+  localStorage.setItem("autobus_player_id", playerId);
+}
+
+let s = {
+  name:"",hostId:"",players:[],maxPlayers:8,phase:"lobby",
+  roundNo:0,roundLimit:5,duration:60,deadline:0,letter:"",
+  answers:{},votes:{},scores:{},roundPoints:{},finished:false
+};
+
+function msg(text,type="") {
+  $("message").textContent=text;
+  $("message").className="message "+type;
+}
+function connected(value) {
+  $("dot").classList.toggle("on",value);
+  $("connection").textContent=value?"متصل":"غير متصل";
+}
+function me(){return s.players.find(p=>p.id===playerId)}
+function host(){return s.hostId===playerId}
+function send(type,data={}) {
+  if(!channel)return;
+  channel.send({type:"broadcast",event:"game",payload:{
+    type,...data,senderId:playerId,at:Date.now()
+  }});
+}
+function sendState(){
+  if(!host())return;
+  send("state",{state:structuredClone(s)});
+}
+function safeName(v){return String(v||"").trim().slice(0,24)}
+function codeGen(){
+  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  return Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join("");
+}
+function show(id,on){$(id).classList.toggle("hidden",!on)}
+
+function renderPlayers(){
+  $("players").replaceChildren();
+  $("playerCount").textContent=s.players.length+" لاعبين";
+  for(const [i,p] of s.players.entries()){
+    const card=document.createElement("div");card.className="player";
+    const avatar=document.createElement("div");avatar.className="avatar";avatar.textContent=AVATARS[i%AVATARS.length];
+    const info=document.createElement("div");info.className="player-info";
+    const name=document.createElement("strong");name.textContent=p.name+(p.id===playerId?" (أنت)":"");
+    const sub=document.createElement("small");sub.textContent=p.id===s.hostId?"👑 مضيف الغرفة":"لاعب";
+    const score=document.createElement("div");score.className="player-points";score.textContent=(s.scores[p.id]||0)+" نقطة";
+    info.append(name,sub);card.append(avatar,info,score);$("players").append(card);
+  }
+  $("start").disabled=!host()||s.players.length<2;
+  $("startHint").textContent=s.players.length<2?"يلزم وجود لاعبين على الأقل.":"الغرفة جاهزة لبدء المباراة.";
+  show("hostSettings",host());show("guestHint",!host());
+  renderLeaderboard();
+}
+function renderLeaderboard(){
+  $("leaderboard").replaceChildren();
+  const ordered=[...s.players].sort((a,b)=>(s.scores[b.id]||0)-(s.scores[a.id]||0));
+  if(!ordered.length){$("leaderboard").textContent="ستظهر النقاط هنا بعد بدء المباراة.";return}
+  ordered.forEach((p,i)=>{
+    const row=document.createElement("div");row.className="player";
+    const avatar=document.createElement("div");avatar.className="avatar";
+    avatar.textContent=i===0&&s.roundNo>0?"🏆":String(i+1);
+    const info=document.createElement("div");info.className="player-info";
+    const n=document.createElement("strong");n.textContent=p.name;
+    const sub=document.createElement("small");sub.textContent=i===0&&s.roundNo>0?"المتصدر":"الترتيب "+(i+1);
+    const points=document.createElement("div");points.className="player-points";points.textContent=(s.scores[p.id]||0);
+    info.append(n,sub);row.append(avatar,info,points);$("leaderboard").append(row);
+  });
+}
+function render(){
+  show("setup",!roomCode);show("room",!!roomCode&&s.phase==="lobby");
+  show("game",!!roomCode&&s.phase!=="lobby");
+  $("roomCode").textContent=roomCode;
+  renderPlayers();
+  if(s.phase==="lobby")return;
+
+  $("phaseLabel").textContent="ROUND "+String(s.roundNo).padStart(2,"0")+" / "+s.roundLimit;
+  $("letter").textContent=s.letter;
+  show("answerArea",s.phase==="answer");
+  show("voteArea",s.phase==="vote");
+  show("waitingArea",s.phase==="waiting");
+  show("roundResults",s.phase==="results");
+
+  $("phaseTitle").textContent={
+    answer:"اكتب إجاباتك",vote:"وقت التصويت",waiting:"انتظر النتائج",results:"نتائج الجولة"
+  }[s.phase]||"المباراة";
+  $("phaseDescription").textContent={
+    answer:"أكمل الفئات قبل انتهاء الوقت.",vote:"صوّت لأفضل إجابة في كل فئة.",waiting:"يتم تجهيز النتيجة النهائية.",results:"راجع نقاط هذه الجولة."
+  }[s.phase]||"";
+
+  if(s.phase==="answer")buildAnswerFields();
+  if(s.phase==="vote")buildVoteFields();
+  if(s.phase==="results")renderResults();
+  renderLeaderboard();
+  startClock();
+}
+function buildAnswerFields(){
+  const root=$("answerFields");root.replaceChildren();
+  const mine=s.answers[playerId]||{};
+  for(const [id,label] of CATS){
+    const wrap=document.createElement("div");wrap.className="answer-field";
+    const lab=document.createElement("label");lab.textContent=label;
+    const input=document.createElement("input");
+    input.id="ans-"+id;input.maxLength=45;input.placeholder=label+" تبدأ بحرف "+s.letter;
+    input.value=mine[id]||"";input.disabled=!!s.answers[playerId];
+    wrap.append(lab,input);root.append(wrap);
+  }
+  $("submit").disabled=!!s.answers[playerId];
+  show("submittedHint",!!s.answers[playerId]);
+}
+function buildVoteFields(){
+  const root=$("voteFields");root.replaceChildren();
+  const mine=s.votes[playerId]||{};
+  for(const [cat,label] of CATS){
+    const card=document.createElement("div");card.className="vote-card";
+    const title=document.createElement("h4");title.textContent=label;card.append(title);
+    const options=s.players.filter(p=>p.id!==playerId&&s.answers[p.id]?.[cat]?.trim());
+    if(!options.length){
+      const none=document.createElement("p");none.className="note";none.textContent="لا توجد إجابات أخرى لهذه الفئة.";card.append(none);
+    } else {
+      for(const p of options){
+        const option=document.createElement("label");option.className="vote-option";
+        const input=document.createElement("input");input.type="radio";input.name="vote-"+cat;input.value=p.id;
+        input.checked=mine[cat]===p.id;input.disabled=!!s.votes[playerId];
+        const text=document.createElement("span");
+        text.textContent=p.name+" — "+s.answers[p.id][cat];
+        option.append(input,text);card.append(option);
+      }
+    }
+    root.append(card);
+  }
+  $("sendVotes").disabled=!!s.votes[playerId];
+  show("votesHint",!!s.votes[playerId]);
+}
+function startClock(){
+  clearInterval(timerInterval);
+  const tick=()=>{
+    const left=Math.max(0,Math.ceil((s.deadline-Date.now())/1000));
+    $("timeLeft").textContent=left;
+    const total=Math.max(1,s.duration);
+    $("timer").style.setProperty("--progress",(left/total*100)+"%");
+    if(left<=0&&host()){
+      if(s.phase==="answer")beginVoting();
+      else if(s.phase==="vote")finishRound();
+    }
+  };
+  tick();timerInterval=setInterval(tick,250);
+}
+function startRound(){
+  if(!host()||s.players.length<2)return;
+  s.roundNo++;
+  s.duration=Number($("duration").value)||60;
+  s.roundLimit=Number($("roundCount").value)||5;
+  s.letter=LETTERS[Math.floor(Math.random()*LETTERS.length)];
+  s.answers={};s.votes={};s.roundPoints={};
+  s.phase="answer";s.deadline=Date.now()+s.duration*1000;
+  sendState();render();
+}
+function submitAnswers(){
+  if(s.phase!=="answer"||s.answers[playerId])return;
+  const values={};
+  for(const [id] of CATS)values[id]=$("ans-"+id).value.trim();
+  if(!Object.values(values).some(Boolean)){msg("اكتب إجابة واحدة على الأقل.","error");return}
+  send("submit",{playerId,values});
+  if(host())acceptAnswers(playerId,values);
+  $("submit").disabled=true;show("submittedHint",true);
+}
+function acceptAnswers(id,values){
+  if(!host()||s.phase!=="answer"||s.answers[id])return;
+  if(!s.players.some(p=>p.id===id))return;
+  s.answers[id]=values;
+  sendState();
+  if(s.players.every(p=>s.answers[p.id]))beginVoting();
+  else render();
+}
+function beginVoting(){
+  if(!host()||s.phase!=="answer")return;
+  s.phase="vote";s.deadline=Date.now()+Math.max(20,Math.floor(s.duration*.6))*1000;
+  s.votes={};sendState();render();
+}
+function submitVotes(){
+  if(s.phase!=="vote"||s.votes[playerId])return;
+  const values={};
+  for(const [cat] of CATS){
+    const selected=document.querySelector('input[name="vote-'+cat+'"]:checked');
+    if(selected)values[cat]=selected.value;
+  }
+  send("vote",{playerId,values});
+  if(host())acceptVotes(playerId,values);
+  $("sendVotes").disabled=true;show("votesHint",true);
+}
+function acceptVotes(id,values){
+  if(!host()||s.phase!=="vote"||s.votes[id])return;
+  if(!s.players.some(p=>p.id===id))return;
+  const clean={};
+  for(const [cat] of CATS){
+    const target=values[cat];
+    if(target&&target!==id&&s.players.some(p=>p.id===target)&&s.answers[target]?.[cat]?.trim()){
+      clean[cat]=target;
+    }
+  }
+  s.votes[id]=clean;
+  sendState();
+  if(s.players.every(p=>s.votes[p.id]))finishRound();
+  else render();
+}
+function finishRound(){
+  if(!host()||s.phase==="results")return;
+  const points={};
+  for(const p of s.players)points[p.id]=0;
+  for(const vote of Object.values(s.votes)){
+    for(const target of Object.values(vote)){
+      if(points[target]!==undefined)points[target]++;
+    }
+  }
+  s.roundPoints=points;
+  for(const p of s.players)s.scores[p.id]=(s.scores[p.id]||0)+points[p.id];
+  s.phase="results";s.deadline=Date.now()+999999999;
+  sendState();render();
+}
+function renderResults(){
+  const sorted=[...s.players].sort((a,b)=>(s.roundPoints[b.id]||0)-(s.roundPoints[a.id]||0));
+  const winner=sorted[0];
+  $("roundWinner").textContent=winner?(winner.name+" — "+(s.roundPoints[winner.id]||0)+" صوت"):"لا يوجد فائز";
+  const root=$("roundScoreList");root.replaceChildren();
+  for(const p of sorted){
+    const row=document.createElement("div");row.className="result-row";
+    const top=document.createElement("div");top.className="result-top";
+    const name=document.createElement("strong");name.textContent=p.name;
+    const score=document.createElement("span");score.textContent="+"+(s.roundPoints[p.id]||0)+" نقطة";
+    top.append(name,score);
+    const bar=document.createElement("div");bar.className="bar";
+    const fill=document.createElement("div");
+    const max=Math.max(1,...Object.values(s.roundPoints));
+    fill.style.width=((s.roundPoints[p.id]||0)/max*100)+"%";
+    bar.append(fill);row.append(top,bar);root.append(row);
+  }
+  $("next").textContent=s.roundNo>=s.roundLimit?"إنهاء المباراة":"الجولة التالية ←";
+  $("next").disabled=!host();
+}
+function nextRound(){
+  if(!host()||s.phase!=="results")return;
+  if(s.roundNo>=s.roundLimit){
+    s.phase="final";sendState();renderFinal();return;
+  }
+  startRound();
+}
+function renderFinal(){
+  show("room",false);show("game",true);
+  $("phaseTitle").textContent="🏆 انتهت المباراة";
+  $("phaseDescription").textContent="الترتيب النهائي لجميع اللاعبين.";
+  show("answerArea",false);show("voteArea",false);show("waitingArea",false);show("roundResults",true);
+  const sorted=[...s.players].sort((a,b)=>(s.scores[b.id]||0)-(s.scores[a.id]||0));
+  $("roundWinner").textContent=sorted[0]?.name+" هو بطل المباراة! 🏆";
+  $("roundScoreList").replaceChildren();
+  for(const [i,p] of sorted.entries()){
+    const row=document.createElement("div");row.className="score-line";
+    row.textContent=(i+1)+". "+p.name+" — "+(s.scores[p.id]||0)+" نقطة";
+    $("roundScoreList").append(row);
+  }
+  $("next").textContent="العودة للغرفة";
+  $("next").disabled=false;
+}
+async function connect(code,asHost){
+  if(!db){msg("ضع بيانات Supabase الصحيحة داخل الكود أولاً.","error");return}
+  if(channel)await db.removeChannel(channel);
+  roomCode=code;
+  s={name:s.name,hostId:asHost?playerId:"",players:asHost?[{id:playerId,name:s.name}]:[],maxPlayers:8,phase:"lobby",roundNo:0,roundLimit:5,duration:60,deadline:0,letter:"",answers:{},votes:{},scores:{},roundPoints:{},finished:false};
+  channel=db.channel("autobus-v2-"+code,{config:{broadcast:{self:false},presence:{key:playerId}}});
+  channel.on("broadcast",{event:"game"},({payload})=>handle(payload));
+  const ok=await new Promise(resolve=>{
+    channel.subscribe(status=>{
+      if(status==="SUBSCRIBED")resolve(true);
+      if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")resolve(false);
+    });
+  });
+  if(!ok){connected(false);msg("تعذر الاتصال. تحقق من Supabase Realtime والإنترنت.","error");return}
+  connected(true);render();
+  if(asHost){sendState();msg("تم إنشاء الغرفة. شارك الكود مع أصدقائك.","good")}
+  else send("join",{player:{id:playerId,name:s.name}});
+}
+function handle(m){
+  if(!m||m.senderId===playerId)return;
+  if(m.type==="join"&&host()){
+    if(s.phase!=="lobby")return;
+    const p=m.player;
+    if(!p?.id||s.players.some(x=>x.id===p.id))return;
+    if(s.players.length>=12){send("full",{targetId:p.id});return}
+    s.players.push({id:p.id,name:safeName(p.name)});
+    sendState();render();return;
+  }
+  if(m.type==="full"&&m.targetId===playerId){msg("الغرفة ممتلئة.","error");return}
+  if(m.type==="state"&&!host()){
+    const incoming=m.state;
+    if(!incoming||!Array.isArray(incoming.players))return;
+    const keepName=s.name;
+    s={...incoming,name:keepName};
+    render();
+    if(s.phase==="final")renderFinal();
+    return;
+  }
+  if(m.type==="submit"&&host()){acceptAnswers(m.playerId,m.values||{});return}
+  if(m.type==="vote"&&host()){acceptVotes(m.playerId,m.values||{});return}
+  if(m.type==="leave"&&host()){
+    s.players=s.players.filter(p=>p.id!==m.playerId);
+    delete s.answers[m.playerId];delete s.votes[m.playerId];
+    sendState();render();return;
+  }
+}
+$("showJoin").onclick=()=>show("joinForm",true);
+$("create").onclick=async()=>{
+  s.name=safeName($("name").value);
+  if(!s.name){msg("اكتب اسمك أولاً.","error");return}
+  $("create").disabled=true;
+  try{await connect(codeGen(),true)}finally{$("create").disabled=false}
+};
+$("join").onclick=async()=>{
+  s.name=safeName($("name").value);
+  const code=$("roomInput").value.toUpperCase().replace(/[^A-Z0-9]/g,"");
+  if(!s.name){msg("اكتب اسمك أولاً.","error");return}
+  if(code.length!==6){msg("كود الغرفة يتكون من 6 رموز.","error");return}
+  await connect(code,false);
+};
+$("start").onclick=startRound;
+$("submit").onclick=submitAnswers;
+$("sendVotes").onclick=submitVotes;
+$("next").onclick=()=>{
+  if(s.phase==="final"){s.phase="lobby";s.roundNo=0;s.scores={};sendState();render()}
+  else nextRound();
+};
+$("copy").onclick=async()=>{
+  try{await navigator.clipboard.writeText(roomCode);msg("تم نسخ كود الغرفة.","good")}
+  catch{msg("كود الغرفة: "+roomCode)}
+};
+$("leave").onclick=async()=>{
+  if(channel){send("leave",{playerId});await db.removeChannel(channel);channel=null}
+  clearInterval(timerInterval);roomCode="";connected(false);
+  s.phase="lobby";s.players=[];s.hostId="";render();
+  msg("غادرت الغرفة.");
+};
+try{
+  if(SUPABASE_URL.startsWith("https://")&&!SUPABASE_URL.includes("YOUR_SUPABASE")&&!SUPABASE_KEY.includes("YOUR_SUPABASE")){
+    db=createClient(SUPABASE_URL,SUPABASE_KEY);
+    msg("جاهز للعب. أنشئ غرفة أو انضم إلى أصدقائك.","good");
+  }else{
+    msg("أضف Project URL وPublishable key من Supabase لتفعيل اللعب الجماعي.","error");
+  }
+}catch(e){msg("تعذر تهيئة Supabase.","error");console.error(e)}
+</script>
+</body>
+</html>
